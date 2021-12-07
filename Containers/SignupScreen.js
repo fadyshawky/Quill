@@ -13,13 +13,15 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
-const LoginScreen = ({navigation}) => {
+const SignupScreen = ({navigation}) => {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
   const [password, setPassword] = useState();
+  const [Phone, setPhoneNumber] = useState();
+  const [birthDate, setBirthDate] = useState();
 
   function onAuthStateChanged(user) {
-    if (user && user._user.email) {
+    if (user._user.email) {
       setUser(user._user.email);
       navigation.navigate('HomeScreen', {
         user: user._user.email,
@@ -28,30 +30,44 @@ const LoginScreen = ({navigation}) => {
   }
 
   function signUp() {
-    navigation.navigate('SignupScreen');
-  }
-
-  function signIn() {
     auth()
-      .signInWithEmailAndPassword(user, password)
-      .then(({user}) => {
-        setUser(user._user.email);
-        navigation.navigate('HomeScreen', {
-          user: user._user.email,
+      .createUserWithEmailAndPassword(user, password)
+      .then(() => {
+        Alert.alert('Yayy!!!', 'Welcome on board...');
+        firestore().collection('Users').doc(user).set({
+          phone: Phone,
+          birthDate: birthDate,
         });
+        firestore().collection('Stories').doc(user).set({
+          Written: [],
+        });
+      })
+      .catch(error => {
+        if (error.code === 'auth/email-already-in-use') {
+          Alert.alert('Ooops!!!', 'That email address is already in use!');
+          console.log('That email address is already in use!');
+        }
+
+        if (error.code === 'auth/invalid-email') {
+          Alert.alert('Ooops!!!', 'That email address is invalid!');
+          console.log('That email address is invalid!');
+        }
+
+        console.error(error);
       });
   }
 
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, []);
+  function signIn() {
+    navigation.navigate('LoginScreen');
+  }
+
+  useEffect(() => {}, []);
 
   const TextInputs = ({onChangeText, type}) => {
     return (
       <TextInput
         autoCapitalize="none"
-        secureTextEntry={type === 'email' ? false : true}
+        secureTextEntry={type === 'password' ? true : false}
         placeholder={type}
         style={styles.textInputStyle}
         onChangeText={onChangeText}
@@ -101,6 +117,18 @@ const LoginScreen = ({navigation}) => {
           setPassword(text);
         },
         type: 'password',
+      })}
+      {TextInputs({
+        onChangeText: text => {
+          setPhoneNumber(text);
+        },
+        type: 'Phone',
+      })}
+      {TextInputs({
+        onChangeText: text => {
+          setBirthDate(text);
+        },
+        type: 'birthDate',
       })}
       <Buttons
         action={() => signIn()}
@@ -170,4 +198,4 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
   },
 });
-export default LoginScreen;
+export default SignupScreen;
