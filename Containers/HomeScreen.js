@@ -151,8 +151,21 @@ const HomeScreen = ({route, navigation}) => {
                       source={item.image}
                     />
                     <View style={{justifyContent: 'space-evenly'}}>
-                      <Text style={{fontSize: 18, fontWeight: 'bold'}}>
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 'bold',
+                          color: '#9611fd',
+                        }}>
                         {item.title}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 'bold',
+                          color: '#9611fd',
+                        }}>
+                        {item.category}
                       </Text>
                       <Text style={{fontSize: 16, width: 200}}>
                         {item.description}

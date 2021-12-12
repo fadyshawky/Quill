@@ -200,6 +200,7 @@ const ProfileScreen = ({route, navigation}) => {
               comments: [],
             });
             navigation.navigate('HomeScreen', {
+              user: user,
               updatedData: data,
             });
           }
